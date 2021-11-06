@@ -13,7 +13,7 @@ export default class Rings {
         
         for (let i = 0; i < this.ringColours.length; i++) {
             const colour = this.p.color(this.ringColours[i]);
-            colour.setAlpha(31);
+            colour.setAlpha(63);
             this.p.stroke(colour);
             this.p.circle(this.x, this.y * i, this.p.width/32);    
         }

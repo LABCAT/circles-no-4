@@ -9,6 +9,7 @@ export default class DrumHit {
     }
 
     draw() {
+        this.p.strokeWeight(1);
         this.p.stroke('#000000');
         this.p.fill(this.fill);
         this.p.ellipse(this.x, this.y, this.size);   

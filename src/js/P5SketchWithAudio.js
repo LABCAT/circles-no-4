@@ -6,6 +6,7 @@ import { Midi } from '@tonejs/midi'
 import PlayIcon from './functions/PlayIcon.js';
 import DrumHit from './classes/DrumHit.js';
 import Rings from './classes/Rings.js';
+import Bubble from './classes/Bubble.js';
 
 import audio from "../audio/circles-no-4.ogg";
 import midi from "../audio/circles-no-4.mid";
@@ -35,13 +36,18 @@ const P5SketchWithAudio = () => {
         
         p.metalRings = [];
 
+        p.bubbles = [];
+
         p.loadMidi = () => {
             Midi.fromUrl(midi).then(
                 function(result) {
+                    console.log(result);
                     const noteSet1 = result.tracks[5].notes; // Redrum 1
                     const noteSet2 = result.tracks[1].notes; // Maelstrom 1 - Ballstabbin
+                    const noteSet3 = result.tracks[4].notes; // Maelstrom 3 - Hot And Spicy
                     p.scheduleCueSet(noteSet1, 'executeCueSet1');
                     p.scheduleCueSet(noteSet2, 'executeCueSet2');
+                    p.scheduleCueSet(noteSet3, 'executeCueSet3');
                     p.audioLoaded = true;
                     document.getElementById("loader").classList.add("loading--complete");
                     document.getElementById("play-icon").classList.remove("fade-out");
@@ -70,9 +76,11 @@ const P5SketchWithAudio = () => {
             }
         } 
 
+        p.backgroundColour = 0;
+
         p.setup = () => {
             p.canvas = p.createCanvas(p.canvasWidth, p.canvasHeight);
-            p.background(0);
+            p.background(p.backgroundColour);
         }
 
         p.draw = () => {
@@ -90,13 +98,18 @@ const P5SketchWithAudio = () => {
                         p.metalRings.splice(i, 1);
                     }
                 }
+
+                for (var i = 0; i < p.bubbles.length; i++) {
+                    p.bubbles[i].update();
+                    p.bubbles[i].draw();
+                    if (p.bubbles[i].ballisFinished()) {
+                        p.bubbles.splice(i, 1);
+                    }
+                }
             }
         }
 
         p.executeCueSet1 = (note) => {
-            if(note.currentCue % 51 == 1){
-                p.background(0);
-            }
             let xPos = Math.floor(note.time * 100000) / 100000;
             if(parseFloat(xPos) >= parseFloat(p.barAsSeconds)){
                 while(xPos >= p.barAsSeconds){
@@ -128,7 +141,7 @@ const P5SketchWithAudio = () => {
             p.drumHits.push(new DrumHit(p, x, y, p.width / 16, fill));    
         }
 
-        p.ringColours = [
+        p.colourPallete = [
             "#F94144", "#F65A38", "#F3722C",
             "#F68425", "#F8961E", "#F9AF37",
             "#F9C74F", "#C5C35E", "#90BE6D",
@@ -137,9 +150,11 @@ const P5SketchWithAudio = () => {
 
         p.executeCueSet2 = (note) => { 
             if(note.currentCue % 11 == 1 && note.currentCue > 1){
-                p.background(0);
+                p.backgroundColour--;
+                p.background(p.backgroundColour);
+                p.bubbles = [];
                 const randomColor = require('randomcolor');
-                p.ringColours = randomColor({
+                p.colourPallete = randomColor({
                     count: 12,
                     luminosity: 'dark'
                 });;
@@ -154,7 +169,36 @@ const P5SketchWithAudio = () => {
                 xPos = xPos > 0 ? xPos : 0;
             }
             const x = (p.width/32) * 3 + (p.width / twoBars * xPos);
-            p.metalRings.push(new Rings(p, x, p.ringColours));
+            p.metalRings.push(new Rings(p, x, p.colourPallete));
+        }
+
+        p.executeCueSet3 = (note) => { 
+            if(note.currentCue % 11 == 1 && note.currentCue < 55){
+                p.backgroundColour--;
+                p.background(p.backgroundColour);
+                p.metalRings = [];
+            }
+            let xPos = Math.floor(note.time * 100000) / 100000;
+            const twoBars = p.barAsSeconds * 2;
+            if(parseFloat(xPos) >= parseFloat(twoBars)){
+                while(xPos >= twoBars){
+                    xPos = xPos - twoBars;
+                }
+
+                xPos = xPos > 0 ? xPos : 0;
+            }
+            const x = (p.width/32) * 3 + (p.width / twoBars * xPos),
+                y = p.random(0, p.height);
+            for (var i = 0; i < 32; i++) {
+                p.bubbles.push(
+                    new Bubble(
+                        p, 
+                        p.map(x, 0, p.width, p.width, 0), 
+                        y, 
+                        p.colourPallete
+                    )
+                );
+            }
         }
 
         p.mousePressed = () => {
