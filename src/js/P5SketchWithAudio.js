@@ -26,7 +26,7 @@ const P5SketchWithAudio = () => {
 
         p.song = null;
 
-        p.tempo = 108;
+        p.tempo = 110;
 
         p.barAsSeconds = Math.floor(((60 / p.tempo) * 4) * 100000) / 100000;
 
@@ -42,7 +42,7 @@ const P5SketchWithAudio = () => {
             Midi.fromUrl(midi).then(
                 function(result) {
                     console.log(result);
-                    const noteSet1 = result.tracks[5].notes; // Redrum 1
+                    const noteSet1 = result.tracks[7].notes; // Redrum 1
                     const noteSet2 = result.tracks[1].notes; // Maelstrom 1 - Ballstabbin
                     const noteSet3 = result.tracks[4].notes; // Maelstrom 3 - Hot And Spicy
                     p.scheduleCueSet(noteSet1, 'executeCueSet1');

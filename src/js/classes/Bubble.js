@@ -33,8 +33,9 @@ export default class Bubble {
         if (this.diameter > 0) {
             this.p.noFill();
             this.p.stroke(this.strokeColour);
-            //this.p.fill(this.fillColour);
             this.p.ellipse(this.x, this.y, this.diameter, this.diameter);
+            // this.p.fill(this.fillColour);
+            this.p.ellipse(this.x, this.y, this.diameter * 0.2, this.diameter * 0.2);
         }
     }
 }
